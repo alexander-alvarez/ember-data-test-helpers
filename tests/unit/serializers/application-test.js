@@ -34,4 +34,35 @@ module('application:pet', 'Unit | Serializer | application', function(hooks) {
       ]
     }, 'We can call serializer.serializeHasMant directly');
   });
+
+
+  test('Who needs the store and service APIs anyways... the snapshot ones are useful though', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let serializer = this.owner.factoryFor('serializer:application').create({ store });
+
+    let model = run(() => store.createRecord('store', { name: 'spot' }));
+    let petA = run(() => store.createRecord('pet', { id: 3, name: 'spot' }));
+    let petB = run(() => store.createRecord('pet', { id: 10, name: 'spot' }));
+    run(() => model.set('pets', [petA, petB]));
+
+    let snapshot = this.createSnapshot(model);
+
+
+    let json = {};
+    let relationship;
+    snapshot.eachRelationship((name, rel) => {
+      if (name === 'pets') {
+        relationship = rel;
+      }
+    });
+
+    serializer.serializeHasMany(snapshot, json, relationship);
+
+    assert.deepEqual(json, {
+      'pets': [
+        '3',
+        '10'
+      ]
+    }, 'We can call serializer.serializeHasMant directly');
+  });
 });
