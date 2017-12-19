@@ -23,7 +23,7 @@ Provides all APIs from `setupStoreTest` as well as
 - `this.serializer(dasherizedSerializerName /* , store */)` -> returns an instance of the given serializer ready for testing.
 
 
-## installation
+## Installation
 
 `ember install ember-data-test-helpers`
 
