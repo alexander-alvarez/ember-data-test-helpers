@@ -1,16 +1,22 @@
 import { setupTest } from 'ember-qunit';
+import { assert } from '@ember/debug';
 
 /**
- * Method to setup `this.createSnapshot`, and `this.store` methods in the testing context
+ * Method to setup `this.data.createSnapshot`, and `this.data.store` methods in the testing context
  * for testing adapters, models, and serializers.
  *
  * @function setupStoreTest
  * @param hooks
  */
 function setupStoreTest(hooks) {
-  setupTest(hooks);
 
   hooks.before(function() {
+
+    assert('ember-data-test-helpers reserves the `this.data` namespace in your tests, yet it has discovered a collision'
+        `this.data = ${JSON.stringify(this.data)}`,
+      !this.data
+    );
+    this.data = {};
     /**
      * Method to provide an intimate API to create snapshots during tests. Use `options.adapterOptions` to pass options
      * to the adapter, as one would when calling `store.findAll(type, options)`
@@ -21,49 +27,20 @@ function setupStoreTest(hooks) {
      * @param {Object} options
      * @returns {*}
      */
-    this.createSnapshot = function(model, options) {
+    this.data.createSnapshot = function(model, options) {
       return model._internalModel.createSnapshot(options);
     }
   });
   hooks.beforeEach(function() {
-    this.store = function(dasherizedStoreName = 'store') {
-      return this.owner.lookup(`service:${dasherizedStoreName}`);
-    };
+    this.data.store = this.owner.lookup(`service:store`);
   });
 
   hooks.afterEach(function() {
-    this.store = null;
+    this.data = {};
   });
+  hooks.after(function() {
+    delete this.data;
+  })
 }
 
-
-/**
- * Setups the testing context for serializer tests.
- * Provides a `this.serializer` method to properly setup a serializer for testing.
- *
- * @function setupSerializerTest
- * @param hooks
- */
-function setupSerializerTest(hooks) {
-  setupStoreTest(hooks);
-
-  hooks.beforeEach(function() {
-    /**
-     * We need to patch the store on the serializer because of:
-     * https://emberjs.com/api/ember-data/2.16/classes/DS.JSONSerializer/properties/store?anchor=store&show=inherited%2Cprotected%2Cprivate%2Cdeprecated
-     *
-     * Theoretically consumers may have multiple stores, so we allow them to override this store implementation although
-     * in practice most people only have one store.
-     *
-     * @param dasherizedSerializerName
-     * @param store
-     */
-    this.serializer = function(dasherizedSerializerName, store = null) {
-      let serializer = this.owner.lookup(`serializer:${dasherizedSerializerName}`);
-      serializer.store = store || this.store();
-      return serializer;
-    }
-  });
-}
-
-export { setupStoreTest, setupSerializerTest };
+export { setupStoreTest };

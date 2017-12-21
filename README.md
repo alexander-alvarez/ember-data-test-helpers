@@ -7,21 +7,14 @@ These APIs are improvements that can now be introduced because of the progress i
 
 **API**
 
-`import { setupStoreTest, setupSerializerTest } from  'ember-data-test-helpers'`
+`import { setupStoreTest } from  'ember-data-test-helpers'`
 
-`setupStoreTest(hooks)`
+`setupStoreTest(hooks)` configures:
 
- - `this.store(/* dasherizedStoreName*/)` -> returns an instance of a `DS.Store`.
+ - `this.data.store` the default an instance of a `DS.Store`.
  
- - `this.createSnapshot(model, options)` -> returns a `DS.Snapshot` of the given `DS.Model` instance
-
-
-`setupSerializerTest(hooks)`
-
-Provides all APIs from `setupStoreTest` as well as
-
-- `this.serializer(dasherizedSerializerName /* , store */)` -> returns an instance of the given serializer ready for testing.
-
+ - `this.data.createSnapshot(model, options)` -> returns a `DS.Snapshot` of the given `DS.Model` instance
+ 
 
 ## Installation
 
